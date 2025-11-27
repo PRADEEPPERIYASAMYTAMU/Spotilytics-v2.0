@@ -7,11 +7,6 @@ When(/^I press "([^"]+)"$/) do |button|
 end
 
 
-Then(/I should see "([^"]+)"/) do |text|
-  expect(page).to have_content(text)
-end
-
-
 Then(/I should see a flash message matching (\/.+\/i?)/) do |regex_literal|
   if regex_literal =~ %r{^/(.*)/([i]?)$}
     pattern = Regexp.new($1, $2 == 'i' ? Regexp::IGNORECASE : 0)
