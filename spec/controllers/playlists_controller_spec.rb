@@ -111,7 +111,7 @@ RSpec.describe PlaylistsController, type: :controller do
     end
 
     describe "POST #create_from_recommendations" do
-        let(:uris) { ["spotify:track:1", "spotify:track:2"] }
+        let(:uris) { [ "spotify:track:1", "spotify:track:2" ] }
 
         context "when user is not logged in" do
             before { session.delete(:spotify_user) }

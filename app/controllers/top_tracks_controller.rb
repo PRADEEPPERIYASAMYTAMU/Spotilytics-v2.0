@@ -38,21 +38,21 @@ class TopTracksController < ApplicationController
           # We'll fetch up to 50 items (Spotify's max) for each time range and then pick out any hidden ids.
           @hidden_short = []
           if short_ids.any?
-            candidates = client.top_tracks(limit: [50, short_ids.size].max, time_range: "short_term")
+            candidates = client.top_tracks(limit: [ 50, short_ids.size ].max, time_range: "short_term")
             map = candidates.index_by(&:id)
             @hidden_short = short_ids.map { |id| map[id] }.compact
           end
 
           @hidden_medium = []
           if medium_ids.any?
-            candidates = client.top_tracks(limit: [50, medium_ids.size].max, time_range: "medium_term")
+            candidates = client.top_tracks(limit: [ 50, medium_ids.size ].max, time_range: "medium_term")
             map = candidates.index_by(&:id)
             @hidden_medium = medium_ids.map { |id| map[id] }.compact
           end
 
           @hidden_long = []
           if long_ids.any?
-            candidates = client.top_tracks(limit: [50, long_ids.size].max, time_range: "long_term")
+            candidates = client.top_tracks(limit: [ 50, long_ids.size ].max, time_range: "long_term")
             map = candidates.index_by(&:id)
             @hidden_long = long_ids.map { |id| map[id] }.compact
           end

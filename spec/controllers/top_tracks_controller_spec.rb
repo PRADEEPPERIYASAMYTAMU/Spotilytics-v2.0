@@ -213,7 +213,7 @@ RSpec.describe TopTracksController, type: :controller do
     it "unhides a previously hidden track" do
       session[:hidden_top_tracks] ||= {}
       session[:hidden_top_tracks][user_id] = {
-        'short_term' => ['to_remove'],
+        'short_term' => [ 'to_remove' ],
         'medium_term' => [],
         'long_term' => []
       }
@@ -226,5 +226,4 @@ RSpec.describe TopTracksController, type: :controller do
       expect(hidden['short_term']).not_to include('to_remove')
     end
   end
-
 end
