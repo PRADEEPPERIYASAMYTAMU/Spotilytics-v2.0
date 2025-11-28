@@ -165,4 +165,65 @@ RSpec.describe TopTracksController, type: :controller do
       end
     end
   end
+
+  describe "POST #hide and POST #unhide" do
+    let(:user_id) { "cuke_user_1" }
+
+    before do
+      # ensure user is signed in for positive tests by default
+      session[:spotify_user] = { "id" => user_id, "display_name" => "Tester" }
+    end
+
+    it "redirects to root when not logged in" do
+      session.delete(:spotify_user)
+      post :hide, params: { time_range: 'short_term', track_id: 't1' }
+      expect(response).to redirect_to(root_path)
+      expect(flash[:alert]).to eq("Please sign in with Spotify first.")
+    end
+
+    it "rejects invalid time_range" do
+      post :hide, params: { time_range: 'invalid', track_id: 't1' }
+      expect(response).to redirect_to(top_tracks_path)
+      expect(flash[:alert]).to eq("Invalid time range.")
+    end
+
+    it "hides a track and stores it in the session" do
+      post :hide, params: { time_range: 'short_term', track_id: 'track_123' }
+      expect(response).to redirect_to(top_tracks_path)
+  expect(flash[:notice]).to eq("Track hidden from short term list.")
+
+      hidden = session[:hidden_top_tracks][user_id]
+      expect(hidden['short_term']).to include('track_123')
+    end
+
+    it "does not allow hiding more than 5 tracks" do
+      # pre-fill with 5 ids
+      session[:hidden_top_tracks] ||= {}
+      session[:hidden_top_tracks][user_id] = {
+        'short_term' => %w[a b c d e],
+        'medium_term' => [],
+        'long_term' => []
+      }
+
+      post :hide, params: { time_range: 'short_term', track_id: 'z' }
+      expect(response).to redirect_to(top_tracks_path)
+      expect(flash[:alert]).to eq("Could not hide track — you can hide at most 5 tracks per list.")
+    end
+
+    it "unhides a previously hidden track" do
+      session[:hidden_top_tracks] ||= {}
+      session[:hidden_top_tracks][user_id] = {
+        'short_term' => [ 'to_remove' ],
+        'medium_term' => [],
+        'long_term' => []
+      }
+
+      post :unhide, params: { time_range: 'short_term', track_id: 'to_remove' }
+      expect(response).to redirect_to(top_tracks_path)
+      expect(flash[:notice]).to eq("Track restored to short term list.")
+
+      hidden = session[:hidden_top_tracks][user_id]
+      expect(hidden['short_term']).not_to include('to_remove')
+    end
+  end
 end
