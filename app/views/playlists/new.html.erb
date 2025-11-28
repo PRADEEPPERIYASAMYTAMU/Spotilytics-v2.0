@@ -11,6 +11,7 @@
                   method: :post,
                   local: true,
                   data: { turbo: false },
+                  html: { multipart: true },
                   authenticity_token: true do %>
       <%= hidden_field_tag :authenticity_token, form_authenticity_token %>
       <% @builder_tracks.each_with_index do |track, idx| %>
@@ -32,20 +33,28 @@
 
         <div class="col-12">
           <%= label_tag :song_query, "Add a song", class: "form-label text-light" %>
+          <p class="text-secondary small">Each click searches Spotify and adds the top match to your list below.</p>
           <div class="d-flex flex-column flex-md-row gap-2">
             <%= text_field_tag :song_query, params[:song_query], placeholder: "Song or artist keywords", class: "form-control bg-dark text-white border-secondary" %>
             <%= submit_tag "Add song", name: :single_add, class: "btn btn-spotify px-4" %>
           </div>
-          <p class="text-secondary small mb-0 mt-2">Each click searches Spotify and adds the top match to your list below.</p>
         </div>
 
         <div class="col-12">
-          <%= label_tag :bulk_songs, "Add multiple songs (comma separated)", class: "form-label text-light" %>
+          <%= label_tag :bulk_songs, "Add multiple songs", class: "form-label text-light" %>
+          <p class="text-secondary small">Add a comma separated list of songs. We’ll search each title and add the top match.</p>
           <%= text_area_tag :bulk_songs, params[:bulk_songs], rows: 2, placeholder: "Song title 1, Song title 2, Song title 3", class: "form-control bg-dark text-white border-secondary" %>
           <div class="text-end mt-2">
-            <%= submit_tag "Add songs", name: :bulk_add, class: "btn btn-outline-light" %>
+            <%= submit_tag "Add songs", name: :bulk_add, class: "btn btn-spotify btn-outline-light" %>
+          </div>        </div>
+
+        <div class="col-12">
+          <%= label_tag :tracks_csv, "Import songs (CSV)", class: "form-label text-light" %>
+          <p class="text-secondary small">Upload a CSV with columns like: title, artist</p>
+          <%= file_field_tag :tracks_csv, accept: ".csv,text/csv", class: "form-control bg-dark text-white border-secondary" %>
+          <div class="text-end mt-2">
+            <%= submit_tag "Upload CSV", name: :file_add, class: "btn btn-outline-info" %>
           </div>
-          <p class="text-secondary small mb-0">We’ll search each title and add the top match. Duplicates are skipped.</p>
         </div>
 
         <div class="col-12">

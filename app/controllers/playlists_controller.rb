@@ -1,3 +1,5 @@
+require "csv"
+
 class PlaylistsController < ApplicationController
   before_action :require_spotify_auth!
 
@@ -123,8 +125,52 @@ class PlaylistsController < ApplicationController
 
     bulk_button   = params[:bulk_add].present?
     single_button = params[:single_add].present?
+    file_button   = params[:file_add].present?
     bulk_input    = params[:bulk_songs].to_s
     query         = params[:song_query].to_s.strip
+    upload        = params[:tracks_csv]
+
+    if file_button
+      if upload.nil?
+        flash.now[:alert] = "Choose a CSV file with columns like title, artist."
+        return render :new, status: :unprocessable_entity
+      end
+
+      added = 0
+      duplicates = []
+      not_found = []
+
+      begin
+        csv = CSV.new(upload.read, headers: true)
+        csv.each do |row|
+          title  = row["title"] || row["track"] || row[0]
+          artist = row["artist"] || row["artists"] || row[1]
+          search = track_search_query(title: title, artist: artist)
+          next if search.blank?
+
+          track = spotify_client.search_tracks(search, limit: 1).first
+          if track.present?
+            if add_track_to_builder(track)
+              added += 1
+            else
+              duplicates << track.name
+            end
+          else
+            not_found << search
+          end
+        end
+      rescue CSV::MalformedCSVError
+        flash.now[:alert] = "Could not read that CSV file. Please check the formatting."
+        return render :new, status: :unprocessable_entity
+      end
+
+      notices = []
+      notices << "Added #{added} #{'song'.pluralize(added)}." if added.positive?
+      notices << "Skipped duplicates: #{duplicates.join(', ')}." if duplicates.any?
+      flash.now[:notice] = notices.join(" ") if notices.any?
+      flash.now[:alert] = "No matches for: #{not_found.join(', ')}." if not_found.any?
+      return render :new
+    end
 
     if bulk_button
       titles = bulk_input.split(",").map { |t| t.strip }.reject(&:blank?)
@@ -138,7 +184,7 @@ class PlaylistsController < ApplicationController
       duplicates = []
 
       titles.each do |title|
-        track = spotify_client.search_tracks(title, limit: 1).first
+        track = spotify_client.search_tracks(track_search_query(title: title), limit: 1).first
         if track.present?
           if add_track_to_builder(track)
             added += 1
@@ -264,6 +310,18 @@ class PlaylistsController < ApplicationController
 
   def default_playlist_name
     "My Spotilytics Playlist - #{Time.current.strftime('%b %d, %Y')}"
+  end
+
+  def track_search_query(title:, artist: nil)
+    t = title.to_s.strip
+    a = artist.to_s.strip
+    return "" if t.blank? && a.blank?
+
+    parts = []
+    parts << %(track:"#{t}") unless t.blank?
+    parts << %(artist:"#{a}") unless a.blank?
+
+    parts.join(" ")
   end
 
   def parse_tracks_params
