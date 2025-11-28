@@ -30,7 +30,7 @@ Rails.application.routes.draw do
   get "/top_tracks", to: "top_tracks#index", as: :top_tracks
   post "/top_tracks/hide", to: "top_tracks#hide", as: :hide_top_track
   post "/top_tracks/unhide", to: "top_tracks#unhide", as: :unhide_top_track
-  
+
   # Playlists (Merged from both branches)
   post "/create_playlist", to: "playlists#create", as: :create_playlist
   post "/create_playlist_from_recommendations", to: "playlists#create_from_recommendations", as: :create_playlist_from_recommendations

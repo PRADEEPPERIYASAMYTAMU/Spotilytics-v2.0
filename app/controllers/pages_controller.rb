@@ -151,7 +151,7 @@ class PagesController < ApplicationController
     user_id = session.dig(:spotify_user, "id")
     # This logic was missing in your feature branch but present in main
     if user_id.present? && defined?(hidden_top_tracks_for_user)
-      # I added a 'defined?' check just in case that helper isn't merged yet, 
+      # I added a 'defined?' check just in case that helper isn't merged yet,
       # but if you have the helper in this file (or included), remove the 'defined?' check.
       hidden = hidden_top_tracks_for_user(user_id) rescue nil
       if hidden
