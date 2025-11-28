@@ -11,7 +11,7 @@ class PagesController < ApplicationController
 
   def clear
     spotify_client.clear_user_cache
-    redirect_to home_path, notice: 'Data refreshed successfully'
+    redirect_to home_path, notice: "Data refreshed successfully"
   rescue SpotifyClient::UnauthorizedError
     redirect_to home_path, alert: "You must log in with spotify to refresh your data."
   rescue SpotifyClient::Error => e

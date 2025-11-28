@@ -9,7 +9,7 @@ RSpec.describe SpotifyClient do
     allow(ENV).to receive(:[]).and_call_original
     allow(ENV).to receive(:[]).with("SPOTIFY_CLIENT_ID").and_return("client_id")
     allow(ENV).to receive(:[]).with("SPOTIFY_CLIENT_SECRET").and_return("client_secret")
-    
+
     # Standard mock for Net::HTTP requests
     allow_any_instance_of(Net::HTTP).to receive(:request).and_return(http_response)
     allow_any_instance_of(Net::HTTP).to receive(:start).and_yield(Net::HTTP.new("api.spotify.com"))
@@ -23,11 +23,11 @@ RSpec.describe SpotifyClient do
             {
               "id" => "album1",
               "name" => "New Album",
-              "images" => [{ "url" => "http://image.url" }],
+              "images" => [ { "url" => "http://image.url" } ],
               "total_tracks" => 12,
               "release_date" => "2024-01-01",
               "external_urls" => { "spotify" => "http://spotify.url" },
-              "artists" => [{ "name" => "Artist 1" }]
+              "artists" => [ { "name" => "Artist 1" } ]
             }
           ]
         }
@@ -51,8 +51,8 @@ RSpec.describe SpotifyClient do
             {
               "id" => "artist1",
               "name" => "Artist 1",
-              "images" => [{ "url" => "http://image.url" }],
-              "genres" => ["pop"],
+              "images" => [ { "url" => "http://image.url" } ],
+              "genres" => [ "pop" ],
               "popularity" => 80,
               "external_urls" => { "spotify" => "http://spotify.url" }
             }
@@ -66,7 +66,7 @@ RSpec.describe SpotifyClient do
       result = client.followed_artists(limit: 10)
       expect(result).not_to be_empty
       expect(result.first.name).to eq("Artist 1")
-      expect(result.first.genres).to eq(["pop"])
+      expect(result.first.genres).to eq([ "pop" ])
     end
   end
 
@@ -81,29 +81,29 @@ RSpec.describe SpotifyClient do
   describe "#add_tracks_to_playlist" do
     it "adds tracks" do
       allow(http_response).to receive(:body).and_return({ snapshot_id: "s1" }.to_json)
-      expect(client.add_tracks_to_playlist(playlist_id: "p1", uris: ["uri1"])).to be_truthy
+      expect(client.add_tracks_to_playlist(playlist_id: "p1", uris: [ "uri1" ])).to be_truthy
     end
   end
 
   describe "#follow_artists" do
     it "follows artists" do
       allow(http_response).to receive(:body).and_return("") # 204 No Content usually, but 200 OK with empty body works for mock
-      expect(client.follow_artists(["a1"])).to be_truthy
+      expect(client.follow_artists([ "a1" ])).to be_truthy
     end
   end
 
   describe "#unfollow_artists" do
     it "unfollows artists" do
       allow(http_response).to receive(:body).and_return("")
-      expect(client.unfollow_artists(["a1"])).to be_truthy
+      expect(client.unfollow_artists([ "a1" ])).to be_truthy
     end
   end
 
   describe "#followed_artist_ids" do
     it "returns set of followed ids" do
       # API returns [true, false] for check
-      allow(http_response).to receive(:body).and_return([true, false].to_json)
-      ids = client.followed_artist_ids(["a1", "a2"])
+      allow(http_response).to receive(:body).and_return([ true, false ].to_json)
+      ids = client.followed_artist_ids([ "a1", "a2" ])
       expect(ids).to include("a1")
       expect(ids).not_to include("a2")
     end
@@ -132,10 +132,10 @@ RSpec.describe SpotifyClient do
 
     it "refreshes token when expired" do
       refresh_response = instance_double(Net::HTTPResponse, body: { access_token: "new_token", expires_in: 3600 }.to_json, code: "200", message: "OK")
-      
+
       # Sequence: 1. Refresh token request, 2. API request
       allow_any_instance_of(Net::HTTP).to receive(:request).and_return(refresh_response, http_response)
-      
+
       expired_client.new_releases(limit: 1)
       expect(expired_session[:spotify_token]).to eq("new_token")
     end

@@ -477,7 +477,7 @@ RSpec.describe PagesController, type: :controller do
         allow(SpotifyClient).to receive(:new)
           .with(session: anything)
           .and_return(mock_client)
-        
+
         allow(mock_client).to receive(:clear_user_cache)
           .and_raise(SpotifyClient::Error.new("rate limited"))
       end

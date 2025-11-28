@@ -28,7 +28,7 @@ class SavedShowsController < ApplicationController
     show_id = params[:id]
 
     begin
-      client.remove_shows([show_id])
+      client.remove_shows([ show_id ])
       client.clear_user_cache
       redirect_to saved_shows_path, notice: "Show removed from your library."
     rescue SpotifyClient::Error => e
@@ -43,7 +43,7 @@ class SavedShowsController < ApplicationController
     @page = (params[:page] || 1).to_i
     @limit = 5
     offset = (@page - 1) * @limit
-    
+
     if @query.present?
       client = SpotifyClient.new(session: session)
       begin
@@ -65,7 +65,7 @@ class SavedShowsController < ApplicationController
     show_id = params[:id]
 
     begin
-      client.save_shows([show_id])
+      client.save_shows([ show_id ])
       client.clear_user_cache
       redirect_to saved_shows_path, notice: "Show saved to your library."
     rescue SpotifyClient::Error => e

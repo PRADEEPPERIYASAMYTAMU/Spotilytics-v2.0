@@ -45,6 +45,5 @@ Rails.application.routes.draw do
     end
   end
 
-get '/coverage/*path', to: redirect("/coverage/%{path}")
-
+get "/coverage/*path", to: redirect("/coverage/%{path}")
 end

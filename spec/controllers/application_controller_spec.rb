@@ -6,7 +6,7 @@ RSpec.describe ApplicationController, type: :controller do
   # This allows us to test the methods in isolation without needing a real route.
   controller do
     # We add a before_action to test the auth barrier
-    before_action :require_spotify_auth!, only: [:protected_action]
+    before_action :require_spotify_auth!, only: [ :protected_action ]
 
     # A public action to test helper methods
     def public_action
@@ -46,7 +46,7 @@ RSpec.describe ApplicationController, type: :controller do
       it "returns an OpenStruct with the user data" do
         get :public_action
         user = controller.current_user
-        
+
         expect(user).to be_an(OpenStruct)
         expect(user.display_name).to eq("RSpec User")
       end
@@ -55,7 +55,7 @@ RSpec.describe ApplicationController, type: :controller do
         get :public_action
         first_call = controller.current_user
         second_call = controller.current_user
-        
+
         # Ensure object_id is the same, meaning it didn't recreate the OpenStruct
         expect(first_call.object_id).to eq(second_call.object_id)
       end
@@ -86,7 +86,7 @@ RSpec.describe ApplicationController, type: :controller do
     context "when session token is missing" do
       it "redirects to root path with an alert" do
         get :protected_action
-        
+
         expect(response).to redirect_to(root_path)
         expect(flash[:alert]).to eq("Please sign in with Spotify first.")
       end
@@ -99,7 +99,7 @@ RSpec.describe ApplicationController, type: :controller do
 
       it "allows the action to proceed" do
         get :protected_action
-        
+
         expect(response).to have_http_status(:ok)
         expect(response.body).to eq("You are authorized!")
       end

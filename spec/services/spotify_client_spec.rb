@@ -7,7 +7,7 @@ RSpec.describe SpotifyClient do
   let(:user_id) { "user123" }
   let(:valid_token) { "valid_access_token" }
   let(:expires_at) { 1.hour.from_now.to_i }
-  
+
   let(:session) do
     {
       spotify_token: valid_token,
@@ -18,10 +18,10 @@ RSpec.describe SpotifyClient do
   end
 
   let(:client) { described_class.new(session: session) }
-  
+
   # Standard Successful Response
   let(:http_ok) { instance_double(Net::HTTPResponse, body: "{}", code: "200", message: "OK") }
-  
+
   before do
     # Mock Environment Variables
     allow(ENV).to receive(:[]).and_call_original
@@ -44,7 +44,7 @@ RSpec.describe SpotifyClient do
 
   describe "#search_tracks" do
     let(:response_body) do
-      { "tracks" => { "items" => [{ "id" => "t1", "name" => "Song", "duration_ms" => 100 }] } }
+      { "tracks" => { "items" => [ { "id" => "t1", "name" => "Song", "duration_ms" => 100 } ] } }
     end
 
     it "returns mapped tracks" do
@@ -59,14 +59,14 @@ RSpec.describe SpotifyClient do
     end
 
     it "uses cache" do
-      allow(Rails.cache).to receive(:fetch).with(/spotify_user123_search_tracks/, any_args).and_return(["cached"])
-      expect(client.search_tracks("query")).to eq(["cached"])
+      allow(Rails.cache).to receive(:fetch).with(/spotify_user123_search_tracks/, any_args).and_return([ "cached" ])
+      expect(client.search_tracks("query")).to eq([ "cached" ])
     end
   end
 
   describe "#profile" do
     let(:response_body) { { "id" => "u1", "display_name" => "Bob", "followers" => { "total" => 10 } } }
-    
+
     it "returns mapped profile" do
       allow(http_ok).to receive(:body).and_return(response_body.to_json)
       expect(client.profile.display_name).to eq("Bob")
@@ -75,7 +75,7 @@ RSpec.describe SpotifyClient do
 
   describe "#new_releases" do
     let(:response_body) do
-      { "albums" => { "items" => [{ "id" => "a1", "name" => "New Album", "artists" => [{"name" => "Art"}] }] } }
+      { "albums" => { "items" => [ { "id" => "a1", "name" => "New Album", "artists" => [ { "name" => "Art" } ] } ] } }
     end
 
     it "returns mapped albums" do
@@ -87,7 +87,7 @@ RSpec.describe SpotifyClient do
 
   describe "#followed_artists" do
     let(:response_body) do
-      { "artists" => { "items" => [{ "id" => "art1", "name" => "Artist One", "genres" => ["pop"] }] } }
+      { "artists" => { "items" => [ { "id" => "art1", "name" => "Artist One", "genres" => [ "pop" ] } ] } }
     end
 
     it "returns mapped artists" do
@@ -99,7 +99,7 @@ RSpec.describe SpotifyClient do
 
   describe "#saved_shows" do
     let(:response_body) do
-      { "items" => [{ "show" => { "id" => "s1", "name" => "Show 1", "total_episodes" => 5 } }], "total" => 1 }
+      { "items" => [ { "show" => { "id" => "s1", "name" => "Show 1", "total_episodes" => 5 } } ], "total" => 1 }
     end
 
     it "fetches saved shows" do
@@ -111,7 +111,7 @@ RSpec.describe SpotifyClient do
 
   describe "#saved_episodes" do
     let(:response_body) do
-      { "items" => [{ "episode" => { "id" => "e1", "name" => "Ep 1", "show" => {"name" => "S1"} } }], "total" => 1 }
+      { "items" => [ { "episode" => { "id" => "e1", "name" => "Ep 1", "show" => { "name" => "S1" } } } ], "total" => 1 }
     end
 
     it "fetches saved episodes" do
@@ -123,7 +123,7 @@ RSpec.describe SpotifyClient do
 
   describe "#search_shows" do
     it "maps response correctly" do
-      body = { "shows" => { "items" => [{ "id" => "s1", "name" => "Show" }], "total" => 1 } }
+      body = { "shows" => { "items" => [ { "id" => "s1", "name" => "Show" } ], "total" => 1 } }
       allow(http_ok).to receive(:body).and_return(body.to_json)
       result = client.search_shows("query")
       expect(result.items.first.name).to eq("Show")
@@ -132,7 +132,7 @@ RSpec.describe SpotifyClient do
 
   describe "#search_episodes" do
     it "maps response correctly" do
-      body = { "episodes" => { "items" => [{ "id" => "e1", "name" => "Ep" }], "total" => 1 } }
+      body = { "episodes" => { "items" => [ { "id" => "e1", "name" => "Ep" } ], "total" => 1 } }
       allow(http_ok).to receive(:body).and_return(body.to_json)
       result = client.search_episodes("query")
       expect(result.items.first.name).to eq("Ep")
@@ -140,7 +140,7 @@ RSpec.describe SpotifyClient do
   end
 
   describe "#top_artists" do
-    let(:response_body) { { "items" => [{ "id" => "ta1", "name" => "Top Art", "popularity" => 100 }] } }
+    let(:response_body) { { "items" => [ { "id" => "ta1", "name" => "Top Art", "popularity" => 100 } ] } }
 
     it "fetches top artists" do
       allow(http_ok).to receive(:body).and_return(response_body.to_json)
@@ -150,7 +150,7 @@ RSpec.describe SpotifyClient do
   end
 
   describe "#top_tracks" do
-    let(:response_body) { { "items" => [{ "id" => "tt1", "name" => "Top Track", "album" => {"name" => "Alb"} }] } }
+    let(:response_body) { { "items" => [ { "id" => "tt1", "name" => "Top Track", "album" => { "name" => "Alb" } } ] } }
 
     it "fetches top tracks" do
       allow(http_ok).to receive(:body).and_return(response_body.to_json)
@@ -165,42 +165,42 @@ RSpec.describe SpotifyClient do
 
   describe "Batch Operations" do
     it "save_shows returns true on success" do
-      expect(client.save_shows(["1"])).to be true
+      expect(client.save_shows([ "1" ])).to be true
     end
     it "save_shows returns true early for empty input" do
       expect(client.save_shows([])).to be true
     end
 
     it "save_episodes returns true on success" do
-      expect(client.save_episodes(["1"])).to be true
+      expect(client.save_episodes([ "1" ])).to be true
     end
     it "save_episodes returns true early for empty input" do
       expect(client.save_episodes([])).to be true
     end
 
     it "remove_shows returns true on success" do
-      expect(client.remove_shows(["1"])).to be true
+      expect(client.remove_shows([ "1" ])).to be true
     end
     it "remove_shows returns true early for empty input" do
       expect(client.remove_shows([])).to be true
     end
 
     it "remove_episodes returns true on success" do
-      expect(client.remove_episodes(["1"])).to be true
+      expect(client.remove_episodes([ "1" ])).to be true
     end
     it "remove_episodes returns true early for empty input" do
       expect(client.remove_episodes([])).to be true
     end
 
     it "follow_artists returns true on success" do
-      expect(client.follow_artists(["id1"])).to be true
+      expect(client.follow_artists([ "id1" ])).to be true
     end
     it "follow_artists returns true early for empty input" do
       expect(client.follow_artists([])).to be true
     end
 
     it "unfollow_artists returns true on success" do
-      expect(client.unfollow_artists(["id1"])).to be true
+      expect(client.unfollow_artists([ "id1" ])).to be true
     end
     it "unfollow_artists returns true early for empty input" do
       expect(client.unfollow_artists([])).to be true
@@ -224,7 +224,7 @@ RSpec.describe SpotifyClient do
 
   describe "#add_tracks_to_playlist" do
     it "sends POST request" do
-      expect(client.add_tracks_to_playlist(playlist_id: "p1", uris: ["spotify:track:1"])).to be true
+      expect(client.add_tracks_to_playlist(playlist_id: "p1", uris: [ "spotify:track:1" ])).to be true
     end
   end
 
@@ -234,8 +234,8 @@ RSpec.describe SpotifyClient do
 
   describe "#followed_artist_ids" do
     it "returns a Set of IDs" do
-      allow(http_ok).to receive(:body).and_return([true, false].to_json)
-      result = client.followed_artist_ids(["exists", "not_exists"])
+      allow(http_ok).to receive(:body).and_return([ true, false ].to_json)
+      result = client.followed_artist_ids([ "exists", "not_exists" ])
       expect(result).to be_a(Set)
       expect(result).to include("exists")
       expect(result).not_to include("not_exists")
@@ -248,7 +248,7 @@ RSpec.describe SpotifyClient do
     it "handles chunking greater than 50 items" do
       ids = (1..55).map(&:to_s)
       expect_any_instance_of(Net::HTTP).to receive(:request).twice.and_return(http_ok)
-      allow(http_ok).to receive(:body).and_return([true].to_json)
+      allow(http_ok).to receive(:body).and_return([ true ].to_json)
       client.followed_artist_ids(ids)
     end
   end
@@ -291,11 +291,11 @@ RSpec.describe SpotifyClient do
   describe "#cache_for fallback" do
     it "yields if user_id is missing (no caching)" do
       allow(client).to receive(:current_user_id).and_return(nil)
-      result = client.send(:cache_for, ["test"]) { "value" }
+      result = client.send(:cache_for, [ "test" ]) { "value" }
       expect(result).to eq("value")
     end
   end
-  
+
   # ============================================================================
   # GROUP 4: INFRASTRUCTURE, ERRORS, AND TOKEN REFRESH
   # ============================================================================
@@ -303,18 +303,18 @@ RSpec.describe SpotifyClient do
   describe "Private Methods & Error Handling" do
     it "converts objects to spotify URIs" do
       track = OpenStruct.new(id: "123")
-      result = client.send(:track_uris_from_tracks, [track])
-      expect(result).to eq(["spotify:track:123"])
+      result = client.send(:track_uris_from_tracks, [ track ])
+      expect(result).to eq([ "spotify:track:123" ])
     end
 
     describe "Token Refresh Logic" do
       context "when token is expired" do
         let(:expires_at) { 1.hour.ago.to_i }
-        
+
         let(:refresh_response) do
-          instance_double(Net::HTTPResponse, 
-            body: { "access_token" => "new_token", "expires_in" => 3600 }.to_json, 
-            code: "200", 
+          instance_double(Net::HTTPResponse,
+            body: { "access_token" => "new_token", "expires_in" => 3600 }.to_json,
+            code: "200",
             message: "OK"
           )
         end
@@ -335,17 +335,17 @@ RSpec.describe SpotifyClient do
 
         it "raises UnauthorizedError if refresh fails" do
            session[:spotify_expires_at] = 1.hour.ago.to_i
-           
+
            # IMPORTANT: We mock a 200 OK but with an error body/missing token.
            # If we mock 400, perform_request raises 'Error' before refresh_access_token! can raise 'UnauthorizedError'
-           failure_response = instance_double(Net::HTTPResponse, 
-             body: { "error" => "invalid_grant", "error_description" => "Bad Refresh" }.to_json, 
-             code: "200", 
+           failure_response = instance_double(Net::HTTPResponse,
+             body: { "error" => "invalid_grant", "error_description" => "Bad Refresh" }.to_json,
+             code: "200",
              message: "OK"
            )
-           
+
            expect_any_instance_of(Net::HTTP).to receive(:request).and_return(failure_response)
-           
+
            expect { client.profile }.to raise_error(SpotifyClient::UnauthorizedError, "Bad Refresh")
         end
 
@@ -365,12 +365,12 @@ RSpec.describe SpotifyClient do
 
     describe "API Error Handling" do
       it "raises Error on 400+ response" do
-        error_response = instance_double(Net::HTTPResponse, 
-          body: { "error" => { "message" => "Bad Request" } }.to_json, 
+        error_response = instance_double(Net::HTTPResponse,
+          body: { "error" => { "message" => "Bad Request" } }.to_json,
           code: "400", message: "Bad Request"
         )
         allow_any_instance_of(Net::HTTP).to receive(:request).and_return(error_response)
-        
+
         expect { client.profile }.to raise_error(SpotifyClient::Error, "Bad Request")
       end
 

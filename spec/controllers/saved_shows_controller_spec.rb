@@ -12,7 +12,7 @@ RSpec.describe SavedShowsController, type: :controller do
 
   describe "GET #index" do
     it "assigns @shows and renders index" do
-      shows = [OpenStruct.new(id: "1", name: "Show 1")]
+      shows = [ OpenStruct.new(id: "1", name: "Show 1") ]
       result = OpenStruct.new(items: shows, total: 1)
       allow(client).to receive(:saved_shows).and_return(result)
 
@@ -38,7 +38,7 @@ RSpec.describe SavedShowsController, type: :controller do
 
   describe "GET #search" do
     it "assigns @shows and renders search" do
-      shows = [OpenStruct.new(id: "1", name: "Show 1")]
+      shows = [ OpenStruct.new(id: "1", name: "Show 1") ]
       result = OpenStruct.new(items: shows, total: 1)
       allow(client).to receive(:search_shows).and_return(result)
 

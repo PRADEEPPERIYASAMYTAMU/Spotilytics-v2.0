@@ -19,11 +19,11 @@ RSpec.describe PlaylistsController, type: :controller do
       it "fetches current_user_id from client and updates session" do
         # Mock client calls
         allow(client).to receive(:current_user_id).and_return("fetched_user_id")
-        
+
         # Mock top_tracks to return empty so we don't proceed to playlist creation (simpler test)
         # or return tracks and mock the rest. Let's return empty to hit the redirect and stop.
         # Wait, if tracks empty it redirects. We just want to verify user_id fetching.
-        
+
         allow(client).to receive(:top_tracks).with(limit: 10, time_range: "short_term").and_return([])
 
         post :create, params: { time_range: "short_term" }
