@@ -20,3 +20,9 @@ Feature: Recommendations
     And Spotify recommendations search fails with "service failure"
     When I visit the recommendations page
     Then I should see the recommendations error "Failed to fetch recommendations: service failure"
+
+  Scenario: Create playlist from recommendations
+    And Spotify returns recommendation data
+    When I visit the recommendations page
+    And I click "Create playlist"
+    And I should see "Playlist created on Spotify"
