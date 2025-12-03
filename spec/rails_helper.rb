@@ -1,19 +1,5 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require 'spec_helper'
-require 'simplecov'
-require 'simplecov'
-SimpleCov.start 'rails' do
-  command_name 'RSpec'
-  # coverage_dir 'coverage/rspec'
-  add_filter '/spec/'
-  add_filter '/config/'
-  add_filter '/vendor/'
-  add_filter '/db/'
-  add_group 'Models', 'app/models'
-  add_group 'Controllers', 'app/controllers'
-  add_group 'Services', 'app/services'
-  add_group 'Helpers', 'app/helpers'
-end
 
 ENV['RAILS_ENV'] ||= 'test'
 require_relative '../config/environment'
